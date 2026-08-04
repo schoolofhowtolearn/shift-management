@@ -60,6 +60,20 @@ function sessionSlotKey(dateStr, periodId) {
   return `${dateStr}_${periodId}`;
 }
 
+// 今日の日付を "YYYY-MM-DD" 形式で取得
+function todayDateStr() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+// 指定日付("YYYY-MM-DD")が過去日かどうか（今日自身は過去日に含めない）
+function isPastDate(dateStr) {
+  return dateStr < todayDateStr();
+}
+
 // ログイン必須ページの共通ガード。
 // 呼び出し元は role ("admin" か "staff" か null=どちらでも可) を指定する。
 // コールバックに (user, userDoc) を渡す。

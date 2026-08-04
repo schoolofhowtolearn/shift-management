@@ -187,7 +187,11 @@ function renderSessionAvailabilityGrid() {
       const key = sessionSlotKey(dt, p.id);
       const mark = currentSessionSlots[key] || "";
       const cls = mark === "○" ? "mark-hope" : mark === "△" ? "mark-possible" : "";
-      html += `<td class="mark-cell ${cls}" onclick="toggleSessionMark('${key}')">${mark}</td>`;
+      if (isPastDate(dt)) {
+        html += `<td class="mark-cell mark-disabled ${cls}" title="過去の日付は入力できません">${mark}</td>`;
+      } else {
+        html += `<td class="mark-cell ${cls}" onclick="toggleSessionMark('${key}')">${mark}</td>`;
+      }
     });
     html += "</tr>";
   });
