@@ -152,6 +152,15 @@ async function submitAddStaff() {
 // ==========================================================
 // シフト希望一覧（読み取り専用グリッド）
 // ==========================================================
+// ○/△を付けたスタッフの氏名一覧をセルの中身として組み立てる（希望一覧グリッド共通）
+function buildAvailCellContent(hopeNames, possibleNames) {
+  if (!hopeNames.length && !possibleNames.length) return "";
+  let html = "";
+  hopeNames.forEach((n) => (html += `<div class="avail-name avail-hope">○ ${escapeHtml(n)}</div>`));
+  possibleNames.forEach((n) => (html += `<div class="avail-name avail-possible">△ ${escapeHtml(n)}</div>`));
+  return html;
+}
+
 function renderOverviewGrid() {
   const wrap = document.getElementById("overviewGrid");
   let html = '<table class="grid"><thead><tr><th>コマ</th><th>時間</th>';
@@ -172,14 +181,7 @@ function renderOverviewGrid() {
       let cellClass = "";
       if (hopeNames.length) cellClass = "mark-hope";
       else if (possibleNames.length) cellClass = "mark-possible";
-      const title = [
-        hopeNames.length ? "希望: " + hopeNames.join("、") : "",
-        possibleNames.length ? "可能: " + possibleNames.join("、") : ""
-      ].filter(Boolean).join(" / ");
-      const countLabel = hopeNames.length + possibleNames.length
-        ? `${hopeNames.length}○ ${possibleNames.length}△`
-        : "";
-      html += `<td class="mark-cell ${cellClass}" title="${escapeHtml(title)}">${countLabel}</td>`;
+      html += `<td class="mark-cell avail-list-cell ${cellClass}">${buildAvailCellContent(hopeNames, possibleNames)}</td>`;
     });
     html += "</tr>";
   });
@@ -323,11 +325,18 @@ let currentSessionDates = [];   // 選択中講習会に含まれる日付の配
 let sessionAvailability = {};   // { uid: { slots: {...}, staffName } }
 let sessionShifts = [];         // shift_session_shifts の配列（doc.id含む）
 let sessionModalContext = { date: null, period: null };
+let overviewEditStaffUid = "";  // "" = 全員集計表示、uid指定時はそのスタッフの希望を編集可能
+let overviewSaveTimer = null;
 
 async function loadSessions() {
   const snap = await db.collection("shift_sessions").orderBy("startDate", "desc").get();
   allSessions = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
   const select = document.getElementById("sessionSelect");
+
+  const staffSelect = document.getElementById("sessionOverviewStaffSelect");
+  const staffOptions = allStaff.map((s) => `<option value="${s.uid}">${escapeHtml(s.name)}${s.active === false ? "（無効）" : ""}</option>`).join("");
+  staffSelect.innerHTML = '<option value="">全員（集計表示・閲覧のみ）</option>' + staffOptions;
+  staffSelect.value = overviewEditStaffUid;
 
   if (!allSessions.length) {
     select.innerHTML = '<option value="">（講習会がまだありません）</option>';
@@ -368,6 +377,12 @@ async function onSessionChange() {
   await loadSessionData();
   renderSessionOverviewGrid();
   renderSessionConfirmGrid();
+}
+
+function onOverviewStaffChange() {
+  overviewEditStaffUid = document.getElementById("sessionOverviewStaffSelect").value;
+  document.getElementById("sessionOverviewEditHint").style.display = overviewEditStaffUid ? "block" : "none";
+  renderSessionOverviewGrid();
 }
 
 async function loadSessionData() {
@@ -442,6 +457,12 @@ function renderSessionOverviewGrid() {
     wrap.innerHTML = '<p class="hint">講習会を選択してください。</p>';
     return;
   }
+
+  if (overviewEditStaffUid) {
+    renderSessionOverviewEditableGrid(wrap);
+    return;
+  }
+
   let html = '<table class="grid"><thead><tr><th>コマ</th><th>時間</th>';
   currentSessionDates.forEach((dt) => (html += `<th>${formatDateLabel(dt)}</th>`));
   html += "</tr></thead><tbody>";
@@ -460,19 +481,74 @@ function renderSessionOverviewGrid() {
       let cellClass = "";
       if (hopeNames.length) cellClass = "mark-hope";
       else if (possibleNames.length) cellClass = "mark-possible";
-      const title = [
-        hopeNames.length ? "希望: " + hopeNames.join("、") : "",
-        possibleNames.length ? "可能: " + possibleNames.join("、") : ""
-      ].filter(Boolean).join(" / ");
-      const countLabel = hopeNames.length + possibleNames.length
-        ? `${hopeNames.length}○ ${possibleNames.length}△`
-        : "";
-      html += `<td class="mark-cell ${cellClass}" title="${escapeHtml(title)}">${countLabel}</td>`;
+      html += `<td class="mark-cell avail-list-cell ${cellClass}">${buildAvailCellContent(hopeNames, possibleNames)}</td>`;
     });
     html += "</tr>";
   });
   html += "</tbody></table>";
   wrap.innerHTML = html;
+}
+
+// 管理者が特定スタッフの講習会シフト希望を直接編集するためのグリッド。
+// 過去日付を含め、いつでもどのコマもクリックして編集できる（スタッフ本人向け画面とは異なり日付制限なし）。
+function renderSessionOverviewEditableGrid(wrap) {
+  const staff = allStaff.find((s) => s.uid === overviewEditStaffUid);
+  const slots = (sessionAvailability[overviewEditStaffUid] || {}).slots || {};
+
+  let html = '<table class="grid"><thead><tr><th>コマ</th><th>時間</th>';
+  currentSessionDates.forEach((dt) => (html += `<th>${formatDateLabel(dt)}</th>`));
+  html += "</tr></thead><tbody>";
+
+  PERIODS.forEach((p) => {
+    html += `<tr><td class="period-cell">${p.id}</td><td class="period-cell">${p.start}-${p.end}</td>`;
+    currentSessionDates.forEach((dt) => {
+      const key = sessionSlotKey(dt, p.id);
+      const mark = slots[key] || "";
+      const cls = mark === "○" ? "mark-hope" : mark === "△" ? "mark-possible" : "";
+      html += `<td class="mark-cell ${cls}" onclick="toggleAdminSessionMark('${key}')">${mark}</td>`;
+    });
+    html += "</tr>";
+  });
+  html += "</tbody></table>";
+  wrap.innerHTML = html;
+
+  document.getElementById("sessionOverviewEditHint").textContent =
+    `「${staff ? staff.name : ""}」さんの希望を編集しています。過去日付を含めていつでも編集できます。セルをクリックすると 空欄 → ○(希望) → △(可能) の順で切り替わり、自動保存されます。`;
+}
+
+function toggleAdminSessionMark(key) {
+  if (!overviewEditStaffUid || !currentSession) return;
+  if (!sessionAvailability[overviewEditStaffUid]) {
+    const staff = allStaff.find((s) => s.uid === overviewEditStaffUid);
+    sessionAvailability[overviewEditStaffUid] = {
+      sessionId: currentSession.id,
+      staffId: overviewEditStaffUid,
+      staffName: staff ? staff.name : "",
+      slots: {}
+    };
+  }
+  const rec = sessionAvailability[overviewEditStaffUid];
+  rec.slots = rec.slots || {};
+  rec.slots[key] = nextMark(rec.slots[key]);
+  renderSessionOverviewGrid();
+  clearTimeout(overviewSaveTimer);
+  overviewSaveTimer = setTimeout(saveAdminSessionAvailability, 400);
+}
+
+async function saveAdminSessionAvailability() {
+  if (!overviewEditStaffUid || !currentSession) return;
+  const rec = sessionAvailability[overviewEditStaffUid];
+  const docId = `${currentSession.id}_${overviewEditStaffUid}`;
+  await db.collection("shift_session_availability").doc(docId).set(
+    {
+      sessionId: currentSession.id,
+      staffId: overviewEditStaffUid,
+      staffName: rec.staffName,
+      slots: rec.slots,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    },
+    { merge: true }
+  );
 }
 
 function renderSessionConfirmGrid() {
@@ -490,7 +566,18 @@ function renderSessionConfirmGrid() {
     currentSessionDates.forEach((dt) => {
       const key = sessionSlotKey(dt, p.id);
       const entries = sessionShifts.filter((s) => sessionSlotKey(s.date, s.period) === key);
+
+      let hopeCount = 0;
+      let possibleCount = 0;
+      Object.values(sessionAvailability).forEach((a) => {
+        const mark = (a.slots || {})[key];
+        if (mark === "○") hopeCount++;
+        else if (mark === "△") possibleCount++;
+      });
+      const availLabel = hopeCount + possibleCount ? `${hopeCount}○ ${possibleCount}△` : "";
+
       html += `<td class="shift-cell">`;
+      if (availLabel) html += `<div class="avail-hint">希望: ${availLabel}</div>`;
       entries.forEach((s) => {
         html += `<div class="shift-entry">
           <span class="remove-btn" onclick="removeSessionShift('${s.id}')">×</span>

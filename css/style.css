@@ -181,6 +181,24 @@ table.grid tr:first-child th:last-child { border-top-right-radius: 12px; }
 }
 .mark-cell.mark-disabled:hover { background: inherit; }
 
+.mark-cell.avail-list-cell {
+  height: auto;
+  min-height: 36px;
+  min-width: 90px;
+  text-align: left;
+  vertical-align: top;
+  padding: 4px 6px;
+  cursor: default;
+}
+.mark-cell.avail-list-cell:hover { background: inherit; }
+.avail-name {
+  font-size: 11px;
+  white-space: nowrap;
+  line-height: 1.5;
+}
+.avail-name.avail-hope { color: #92400e; }
+.avail-name.avail-possible { color: #1e3a8a; }
+
 .shift-cell {
   min-width: 130px;
   height: auto;
@@ -196,6 +214,12 @@ table.grid tr:first-child th:last-child { border-top-right-radius: 12px; }
   margin-bottom: 6px;
   font-size: 11px;
   position: relative;
+}
+.avail-hint {
+  font-size: 10px;
+  color: var(--primary-dark);
+  font-weight: 700;
+  margin-bottom: 4px;
 }
 .shift-entry .staff-name { font-weight: 700; color: var(--accent); }
 .shift-entry .student-line { color: var(--muted); }
