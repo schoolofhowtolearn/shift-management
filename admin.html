@@ -8,7 +8,7 @@
 </head>
 <body>
 <header class="app-header">
-  <h1>個別指導塾 シフト管理（管理者）</h1>
+  <h1>学び方の学校 シフト管理（管理者）</h1>
   <div>
     <span class="user-badge" id="userBadge"></span>
     <button class="secondary small" onclick="logout()">ログアウト</button>
@@ -38,7 +38,16 @@
   <!-- シフト希望一覧 -->
   <div class="tab-panel" id="tab-overview">
     <div class="card">
-      <p class="hint">全スタッフの希望・可能日程を一覧表示します。セルにマウスを合わせると氏名が確認できます。</p>
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <p class="hint" style="margin:0;">全スタッフの希望・可能日程を一覧表示します。セルにマウスを合わせると氏名が確認できます。</p>
+        <div style="min-width:220px;">
+          <label style="margin-bottom:4px;">編集するスタッフ</label>
+          <select id="overviewStaffSelect" style="margin-bottom:0;" onchange="onWeeklyOverviewStaffChange()">
+            <option value="">全員（集計表示・閲覧のみ）</option>
+          </select>
+        </div>
+      </div>
+      <p class="hint" id="overviewEditHint" style="display:none;"></p>
       <div class="legend">
         <span><span class="swatch" style="background:#fde68a;"></span>○ 希望あり</span>
         <span><span class="swatch" style="background:#bfdbfe;"></span>△ 可能あり</span>
