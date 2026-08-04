@@ -180,6 +180,10 @@ table.grid tr:first-child th:last-child { border-top-right-radius: 12px; }
   opacity: 0.55;
 }
 .mark-cell.mark-disabled:hover { background: inherit; }
+.mark-cell.mark-disabled-empty {
+  background: var(--blocked);
+}
+.mark-cell.mark-disabled-empty:hover { background: var(--blocked); }
 
 .mark-cell.avail-list-cell {
   height: auto;

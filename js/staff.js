@@ -188,7 +188,7 @@ function renderSessionAvailabilityGrid() {
       const mark = currentSessionSlots[key] || "";
       const cls = mark === "○" ? "mark-hope" : mark === "△" ? "mark-possible" : "";
       if (isPastDate(dt)) {
-        html += `<td class="mark-cell mark-disabled ${cls}" title="過去の日付は入力できません">${mark}</td>`;
+        html += `<td class="mark-cell mark-disabled ${cls || "mark-disabled-empty"}" title="過去の日付は入力できません">${mark}</td>`;
       } else {
         html += `<td class="mark-cell ${cls}" onclick="toggleSessionMark('${key}')">${mark}</td>`;
       }
