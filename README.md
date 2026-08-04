@@ -7,6 +7,7 @@ Firebase（認証・Firestore）+ GitHub Pages で動かす、サーバー不要
 
 - **管理者**: スタッフの登録・無効化、全スタッフのシフト希望一覧の確認、コマ単位でのスタッフ・生徒（氏名・学年・科目）の割り当て確定、確定シフトの週間カレンダー表示・印刷
 - **アルバイト**: 自分のシフト希望（○希望／△可能）をコマ×曜日で入力、管理者が確定した自分の担当シフト（生徒情報つき）の確認
+- **講習会シフト**: 夏期講習・冬期講習など、通常の曜日ベースとは別に「講習会名＋開始日〜終了日」を指定して、期間中の日付ごとにシフト希望の入力・確定を行える機能
 
 ## ファイル構成
 
@@ -29,7 +30,7 @@ shift-app/
 
 ### 1. Firebaseプロジェクトを準備
 
-新規プロジェクトを作らず、既存のFirebaseプロジェクト（例: Learning Station）にこのアプリを追加する場合は、そのプロジェクトを開いて以下を行います。
+新規プロジェクトを作らず、既存のFirebaseプロジェクト（例: posting-tracker）にこのアプリを追加する場合は、そのプロジェクトを開いて以下を行います。
 
 1. https://console.firebase.google.com/ で対象プロジェクトを開く
 2. 左メニュー「構築」→「Authentication」→「Sign-in method」で **メール/パスワード** を有効化（既に他の用途で有効化済みなら不要）
@@ -102,13 +103,26 @@ Firebaseコンソールの「Firestore Database」→「ルール」タブに `f
 
 ## データ構造（Firestore）
 
-既存のFirebaseプロジェクト（例: Learning Station）に相乗りする場合を想定し、コレクション名には `shift_` の接頭辞を付けています。他のアプリが使っている `users` 等のコレックションとは重複しません。
+既存のFirebaseプロジェクト（例: posting-tracker）に相乗りする場合を想定し、コレクション名には `shift_` の接頭辞を付けています。他のアプリが使っている `users` 等のコレックションとは重複しません。
 
 - `shift_users/{uid}`: `{ name, email, role: "admin"|"staff", subjects: [], contact, active }`
 - `shift_availability/{uid}`: `{ staffId, staffName, slots: { "月_1": "○"|"△", ... } }`
 - `shift_shifts/{autoId}`: `{ day, period, staffId, staffName, studentName, studentGrade, subject, notes }`
+- `shift_sessions/{autoId}`: `{ name, startDate: "YYYY-MM-DD", endDate: "YYYY-MM-DD", createdBy, createdAt }`（講習会本体）
+- `shift_session_availability/{sessionId_uid}`: `{ sessionId, staffId, staffName, slots: { "2026-08-10_1": "○"|"△", ... } }`（講習会期間中の日付ベースの希望）
+- `shift_session_shifts/{autoId}`: `{ sessionId, date: "YYYY-MM-DD", period, staffId, staffName, studentName, studentGrade, subject, notes }`（講習会の確定シフト）
+
+## 講習会シフト機能の使い方
+
+1. 管理者としてログイン →「講習会シフト」タブ → 講習会名（例: 夏期講習2026）と開始日・終了日を入力して「＋ 作成する」
+2. アルバイトとしてログイン →「講習会シフト希望」タブ → 対象の講習会を選び、日付×コマのマスをクリックして○（希望）／△（可能）を入力（自動保存されます）
+3. 管理者の「講習会シフト」タブ →「シフト確定・編集」で、日付×コマごとに「＋追加」からスタッフと生徒情報を割り当てて確定
+4. アルバイトの「確定シフト確認」タブ下部「講習会の確定シフト」で、自分に割り当てられた講習会シフトを確認可能
+5. 不要になった講習会は「この講習会を削除」で、関連する希望・確定シフトごと削除できます
+
+※ この機能を追加したことで `firestore.rules` にも新しいコレクション用のルールが追加されています。Firebaseコンソールの「Firestore Database」→「ルール」タブに、更新後の `firestore.rules` の内容を貼り付けて再度「公開」してください（これをしないと講習会機能が権限エラーで動作しません）。
 
 ## 注意事項
 
-- 「通常授業日程希望調査表.xlsx」は月〜土・週次の繰り返しパターンとして扱っています（特定の日付ではなく曜日ベース）。特定の日付単位で管理したい場合は追加の改修が必要です。
+- 通常のシフト（「シフト希望入力」「シフト確定・編集」タブ）は月〜土・週次の繰り返しパターンとして扱っています（特定の日付ではなく曜日ベース）。特定の期間・日付単位で管理したい場合は上記の「講習会シフト」機能を使ってください。
 - スタッフの退会（Authenticationアカウントの完全削除）はセキュリティ上クライアント側からはできないため、現在は「無効化」による運用としています。完全削除が必要な場合はFirebaseコンソールから手動で削除してください。

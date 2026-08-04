@@ -21,6 +21,7 @@
     <button class="tab-btn" data-tab="overview">シフト希望一覧</button>
     <button class="tab-btn" data-tab="confirm">シフト確定・編集</button>
     <button class="tab-btn" data-tab="calendar">週間カレンダー</button>
+    <button class="tab-btn" data-tab="sessions">講習会シフト</button>
   </div>
 
   <!-- スタッフ管理 -->
@@ -62,6 +63,80 @@
         <button class="secondary small" onclick="window.print()">印刷</button>
       </div>
       <div id="calendarGrid" style="margin-top:16px;">読み込み中...</div>
+    </div>
+  </div>
+
+  <!-- 講習会シフト -->
+  <div class="tab-panel" id="tab-sessions">
+    <div class="card">
+      <h3 style="margin:0 0 12px;">講習会を作成</h3>
+      <p class="hint">夏期講習・冬期講習など、期間を指定して日付ベースでシフトを組みたいときに使います。</p>
+      <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;">
+        <div style="flex:1; min-width:180px;">
+          <label>講習会名</label>
+          <input type="text" id="newSessionName" placeholder="例: 夏期講習2026" style="margin-bottom:0;" />
+        </div>
+        <div style="min-width:150px;">
+          <label>開始日</label>
+          <input type="date" id="newSessionStart" style="margin-bottom:0;" />
+        </div>
+        <div style="min-width:150px;">
+          <label>終了日</label>
+          <input type="date" id="newSessionEnd" style="margin-bottom:0;" />
+        </div>
+        <button onclick="submitCreateSession()">＋ 作成する</button>
+      </div>
+      <div id="sessionCreateError" class="error-msg" style="margin-top:8px;"></div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <div style="min-width:240px;">
+          <label>対象の講習会</label>
+          <select id="sessionSelect" style="margin-bottom:0;" onchange="onSessionChange()"></select>
+        </div>
+        <div class="tabs" style="margin:0;">
+          <button class="subtab-btn active" data-subtab="sessionOverview">希望一覧</button>
+          <button class="subtab-btn" data-subtab="sessionConfirm">シフト確定・編集</button>
+        </div>
+        <button class="secondary small" onclick="deleteCurrentSession()">この講習会を削除</button>
+      </div>
+
+      <div class="subtab-panel active" id="subtab-sessionOverview" style="margin-top:18px;">
+        <p class="hint">選択した講習会の期間中、各日付・コマごとの希望・可能人数を一覧表示します。セルにマウスを合わせると氏名が確認できます。</p>
+        <div class="legend">
+          <span><span class="swatch" style="background:#ffe0a3;"></span>○ 希望あり</span>
+          <span><span class="swatch" style="background:#bcd6ff;"></span>△ 可能あり</span>
+        </div>
+        <div id="sessionOverviewGrid" class="table-scroll">講習会を選択してください。</div>
+      </div>
+
+      <div class="subtab-panel" id="subtab-sessionConfirm" style="margin-top:18px;">
+        <p class="hint">各日付・コマの「＋追加」からスタッフと生徒情報を登録すると確定シフトになります。</p>
+        <div id="sessionConfirmGrid" class="table-scroll">講習会を選択してください。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 講習会シフト追加モーダル -->
+<div class="modal-backdrop" id="sessionShiftModal">
+  <div class="modal">
+    <h3 id="sessionShiftModalTitle">シフトを追加</h3>
+    <div id="sessionShiftModalError" class="error-msg"></div>
+    <label>担当スタッフ</label>
+    <select id="sessionShiftStaffSelect"></select>
+    <label>生徒氏名</label>
+    <input type="text" id="sessionShiftStudentName" />
+    <label>学年</label>
+    <input type="text" id="sessionShiftStudentGrade" placeholder="例: 中2" />
+    <label>科目</label>
+    <input type="text" id="sessionShiftSubject" placeholder="例: 数学" />
+    <label>備考</label>
+    <input type="text" id="sessionShiftNotes" />
+    <div class="modal-actions">
+      <button class="secondary" onclick="closeSessionShiftModal()">キャンセル</button>
+      <button onclick="submitSessionShift()">保存する</button>
     </div>
   </div>
 </div>

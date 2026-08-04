@@ -125,7 +125,7 @@ label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 4px
   max-width: 100%;
   overflow-x: auto;
 }
-.tab-btn {
+.tab-btn, .subtab-btn {
   background: transparent;
   color: var(--muted);
   border-radius: 999px;
@@ -135,14 +135,16 @@ label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 4px
   box-shadow: none;
   white-space: nowrap;
 }
-.tab-btn:hover { background: rgba(255,255,255,0.6); color: var(--text); }
-.tab-btn.active {
+.tab-btn:hover, .subtab-btn:hover { background: rgba(255,255,255,0.6); color: var(--text); }
+.tab-btn.active, .subtab-btn.active {
   background: var(--card-bg);
   color: var(--primary-dark);
   box-shadow: 0 1px 4px rgba(20,20,30,0.12);
 }
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
+.tab-panel, .subtab-panel { display: none; }
+.tab-panel.active, .subtab-panel.active { display: block; }
+
+.table-scroll { overflow-x: auto; }
 
 table.grid {
   border-collapse: separate;

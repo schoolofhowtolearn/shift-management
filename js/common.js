@@ -28,6 +28,38 @@ function slotKey(day, periodId) {
   return `${day}_${periodId}`;
 }
 
+// ==========================================================
+// 講習会（期間限定・日付ベースのシフト）用ユーティリティ
+// ==========================================================
+
+// 開始日〜終了日（"YYYY-MM-DD"形式）の間の日付を1日ずつ配列にする
+function dateRangeArray(startStr, endStr) {
+  const result = [];
+  let d = new Date(startStr + "T00:00:00");
+  const end = new Date(endStr + "T00:00:00");
+  while (d <= end) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    result.push(`${y}-${m}-${day}`);
+    d.setDate(d.getDate() + 1);
+  }
+  return result;
+}
+
+const WEEKDAY_JP = ["日", "月", "火", "水", "木", "金", "土"];
+
+// "2026-08-10" -> "8/10(月)" のような表示用ラベルに変換
+function formatDateLabel(dateStr) {
+  const d = new Date(dateStr + "T00:00:00");
+  return `${d.getMonth() + 1}/${d.getDate()}(${WEEKDAY_JP[d.getDay()]})`;
+}
+
+// date_period のキー生成（講習会シフト用）
+function sessionSlotKey(dateStr, periodId) {
+  return `${dateStr}_${periodId}`;
+}
+
 // ログイン必須ページの共通ガード。
 // 呼び出し元は role ("admin" か "staff" か null=どちらでも可) を指定する。
 // コールバックに (user, userDoc) を渡す。

@@ -32,5 +32,25 @@ service cloud.firestore {
         (isAdmin() || resource.data.staffId == request.auth.uid);
       allow create, update, delete: if isAdmin();
     }
+
+    // 講習会（期間限定の特別シフト企画: 夏期講習・冬期講習など、曜日ではなく日付ベースで管理）
+    match /shift_sessions/{sessionId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // 講習会シフト希望（日付ベース）。ドキュメントIDは "セッションID_uid" の形式。
+    // 既存ドキュメントの有無に関わらず判定できるよう、IDから本人確認を行う。
+    match /shift_session_availability/{docId} {
+      allow read: if isSignedIn() && (isAdmin() || docId.split('_')[1] == request.auth.uid);
+      allow write: if isSignedIn() && docId.split('_')[1] == request.auth.uid;
+    }
+
+    // 講習会 確定シフト（日付ベース）: 本人は自分が担当する分のみ読み取り可、書き込みは管理者のみ
+    match /shift_session_shifts/{shiftId} {
+      allow read: if isSignedIn() &&
+        (isAdmin() || resource.data.staffId == request.auth.uid);
+      allow create, update, delete: if isAdmin();
+    }
   }
 }
