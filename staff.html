@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>アルバイト画面 | シフト管理</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<header class="app-header">
+  <h1>個別指導塾 シフト管理</h1>
+  <div>
+    <span class="user-badge" id="userBadge"></span>
+    <button class="secondary small" onclick="logout()">ログアウト</button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="availability">シフト希望入力</button>
+    <button class="tab-btn" data-tab="confirmed">確定シフト確認</button>
+  </div>
+
+  <div class="tab-panel active" id="tab-availability">
+    <div class="card">
+      <p class="hint">セルをクリックすると 空欄 → ○(希望) → △(可能) の順で切り替わります。変更は自動的に保存されます。</p>
+      <div class="legend">
+        <span><span class="swatch" style="background:#fde68a;"></span>○ 希望</span>
+        <span><span class="swatch" style="background:#bfdbfe;"></span>△ 可能</span>
+      </div>
+      <div id="availabilityGrid"></div>
+      <div id="saveStatus" class="hint" style="margin-top:8px;"></div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-confirmed">
+    <div class="card">
+      <p class="hint">管理者が確定した、あなたの担当シフトです。</p>
+      <div id="confirmedGrid"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/common.js"></script>
+<script src="js/staff.js"></script>
+</body>
+</html>

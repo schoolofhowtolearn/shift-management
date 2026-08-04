@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>管理者画面 | シフト管理</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<header class="app-header">
+  <h1>個別指導塾 シフト管理（管理者）</h1>
+  <div>
+    <span class="user-badge" id="userBadge"></span>
+    <button class="secondary small" onclick="logout()">ログアウト</button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="staff">スタッフ管理</button>
+    <button class="tab-btn" data-tab="overview">シフト希望一覧</button>
+    <button class="tab-btn" data-tab="confirm">シフト確定・編集</button>
+    <button class="tab-btn" data-tab="calendar">週間カレンダー</button>
+  </div>
+
+  <!-- スタッフ管理 -->
+  <div class="tab-panel active" id="tab-staff">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0;">スタッフ一覧</h3>
+        <button onclick="openAddStaffModal()">＋ スタッフを追加</button>
+      </div>
+      <div id="staffList" style="margin-top:16px;">読み込み中...</div>
+    </div>
+  </div>
+
+  <!-- シフト希望一覧 -->
+  <div class="tab-panel" id="tab-overview">
+    <div class="card">
+      <p class="hint">全スタッフの希望・可能日程を一覧表示します。セルにマウスを合わせると氏名が確認できます。</p>
+      <div class="legend">
+        <span><span class="swatch" style="background:#fde68a;"></span>○ 希望あり</span>
+        <span><span class="swatch" style="background:#bfdbfe;"></span>△ 可能あり</span>
+      </div>
+      <div id="overviewGrid">読み込み中...</div>
+    </div>
+  </div>
+
+  <!-- シフト確定・編集 -->
+  <div class="tab-panel" id="tab-confirm">
+    <div class="card">
+      <p class="hint">各コマの「＋追加」からスタッフと生徒情報を登録すると確定シフトになります。</p>
+      <div id="confirmGrid">読み込み中...</div>
+    </div>
+  </div>
+
+  <!-- 週間カレンダー -->
+  <div class="tab-panel" id="tab-calendar">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0;">確定シフト 週間カレンダー</h3>
+        <button class="secondary small" onclick="window.print()">印刷</button>
+      </div>
+      <div id="calendarGrid" style="margin-top:16px;">読み込み中...</div>
+    </div>
+  </div>
+</div>
+
+<!-- スタッフ追加モーダル -->
+<div class="modal-backdrop" id="staffModal">
+  <div class="modal">
+    <h3>スタッフを追加</h3>
+    <div id="staffModalError" class="error-msg"></div>
+    <label>氏名</label>
+    <input type="text" id="newStaffName" />
+    <label>メールアドレス</label>
+    <input type="email" id="newStaffEmail" />
+    <label>初期パスワード（6文字以上）</label>
+    <input type="text" id="newStaffPassword" />
+    <label>担当科目（カンマ区切り）</label>
+    <input type="text" id="newStaffSubjects" placeholder="例: 数学, 英語" />
+    <label>連絡先（電話番号など）</label>
+    <input type="text" id="newStaffContact" />
+    <div class="modal-actions">
+      <button class="secondary" onclick="closeAddStaffModal()">キャンセル</button>
+      <button onclick="submitAddStaff()">追加する</button>
+    </div>
+  </div>
+</div>
+
+<!-- シフト追加モーダル -->
+<div class="modal-backdrop" id="shiftModal">
+  <div class="modal">
+    <h3 id="shiftModalTitle">シフトを追加</h3>
+    <div id="shiftModalError" class="error-msg"></div>
+    <label>担当スタッフ</label>
+    <select id="shiftStaffSelect"></select>
+    <label>生徒氏名</label>
+    <input type="text" id="shiftStudentName" />
+    <label>学年</label>
+    <input type="text" id="shiftStudentGrade" placeholder="例: 中2" />
+    <label>科目</label>
+    <input type="text" id="shiftSubject" placeholder="例: 数学" />
+    <label>備考</label>
+    <input type="text" id="shiftNotes" />
+    <div class="modal-actions">
+      <button class="secondary" onclick="closeShiftModal()">キャンセル</button>
+      <button onclick="submitShift()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/common.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/shift_users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // ユーザー情報（本人 or 管理者のみ読み取り可、書き込みは管理者のみ）
+    // コレクション名に shift_ の接頭辞を付け、同一Firebaseプロジェクト内の
+    // 他アプリのデータ（例: Learning Station本体のデータ）と衝突しないようにしている。
+    match /shift_users/{uid} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+      allow create, update, delete: if isAdmin();
+    }
+
+    // シフト希望（本人は自分の分のみ読み書き可、管理者は全件読み取り可）
+    match /shift_availability/{uid} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+      allow write: if isSignedIn() && request.auth.uid == uid;
+    }
+
+    // 確定シフト（本人は自分が担当する分のみ読み取り可、書き込みは管理者のみ）
+    match /shift_shifts/{shiftId} {
+      allow read: if isSignedIn() &&
+        (isAdmin() || resource.data.staffId == request.auth.uid);
+      allow create, update, delete: if isAdmin();
+    }
+  }
+}
