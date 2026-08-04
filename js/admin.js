@@ -152,6 +152,7 @@ async function submitAddStaff() {
 // ==========================================================
 // シフト希望一覧（読み取り専用グリッド）
 // ==========================================================
+
 // ○/△を付けたスタッフの氏名一覧をセルの中身として組み立てる（希望一覧グリッド共通）
 function buildAvailCellContent(hopeNames, possibleNames) {
   if (!hopeNames.length && !possibleNames.length) return "";
@@ -567,17 +568,20 @@ function renderSessionConfirmGrid() {
       const key = sessionSlotKey(dt, p.id);
       const entries = sessionShifts.filter((s) => sessionSlotKey(s.date, s.period) === key);
 
-      let hopeCount = 0;
-      let possibleCount = 0;
+      const hopeNames = [];
+      const possibleNames = [];
       Object.values(sessionAvailability).forEach((a) => {
         const mark = (a.slots || {})[key];
-        if (mark === "○") hopeCount++;
-        else if (mark === "△") possibleCount++;
+        if (mark === "○") hopeNames.push(a.staffName);
+        else if (mark === "△") possibleNames.push(a.staffName);
       });
-      const availLabel = hopeCount + possibleCount ? `${hopeCount}○ ${possibleCount}△` : "";
+      const availParts = [];
+      if (hopeNames.length) availParts.push("○ " + hopeNames.join("・"));
+      if (possibleNames.length) availParts.push("△ " + possibleNames.join("・"));
+      const availLabel = availParts.join(" / ");
 
       html += `<td class="shift-cell">`;
-      if (availLabel) html += `<div class="avail-hint">希望: ${availLabel}</div>`;
+      if (availLabel) html += `<div class="avail-hint">希望: ${escapeHtml(availLabel)}</div>`;
       entries.forEach((s) => {
         html += `<div class="shift-entry">
           <span class="remove-btn" onclick="removeSessionShift('${s.id}')">×</span>
@@ -607,6 +611,7 @@ function openSessionShiftModal(dateStr, period) {
   document.getElementById("sessionShiftSubject").value = "";
   document.getElementById("sessionShiftNotes").value = "";
 
+  // このコマに ○/△ を付けているスタッフを優先的に上部へ表示
   const available = [];
   const others = [];
   allStaff.forEach((s) => {
