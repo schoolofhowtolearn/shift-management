@@ -103,7 +103,16 @@
       </div>
 
       <div class="subtab-panel active" id="subtab-sessionOverview" style="margin-top:18px;">
-        <p class="hint">選択した講習会の期間中、各日付・コマごとの希望・可能人数を一覧表示します。セルにマウスを合わせると氏名が確認できます。</p>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+          <p class="hint" style="margin:0;">選択した講習会の期間中、各日付・コマごとの希望・可能人数を一覧表示します。セルにマウスを合わせると氏名が確認できます。</p>
+          <div style="min-width:220px;">
+            <label style="margin-bottom:4px;">編集するスタッフ</label>
+            <select id="sessionOverviewStaffSelect" style="margin-bottom:0;" onchange="onOverviewStaffChange()">
+              <option value="">全員（集計表示・閲覧のみ）</option>
+            </select>
+          </div>
+        </div>
+        <p class="hint" id="sessionOverviewEditHint" style="display:none;">選択したスタッフの希望を、過去日付を含めていつでも直接編集できます。セルをクリックすると 空欄 → ○(希望) → △(可能) の順で切り替わり、自動保存されます。</p>
         <div class="legend">
           <span><span class="swatch" style="background:#ffe0a3;"></span>○ 希望あり</span>
           <span><span class="swatch" style="background:#bcd6ff;"></span>△ 可能あり</span>
@@ -112,7 +121,7 @@
       </div>
 
       <div class="subtab-panel" id="subtab-sessionConfirm" style="margin-top:18px;">
-        <p class="hint">各日付・コマの「＋追加」からスタッフと生徒情報を登録すると確定シフトになります。</p>
+        <p class="hint">各日付・コマの「＋追加」からスタッフと生徒情報を登録すると確定シフトになります（同じコマに複数人追加できます）。カッコ内は希望・可能人数です。</p>
         <div id="sessionConfirmGrid" class="table-scroll">講習会を選択してください。</div>
       </div>
     </div>
