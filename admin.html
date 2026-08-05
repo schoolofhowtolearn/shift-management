@@ -8,7 +8,7 @@
 </head>
 <body>
 <header class="app-header">
-  <h1>学び方の学校 シフト管理（管理者）</h1>
+  <h1>学び方の学校 シフト管理</h1>
   <div>
     <span class="user-badge" id="userBadge"></span>
     <button class="secondary small" onclick="logout()">ログアウト</button>
@@ -18,102 +18,102 @@
 <div class="container">
   <div class="tabs">
     <button class="tab-btn active" data-tab="staff">スタッフ管理</button>
-    <button class="tab-btn" data-tab="overview">通常シフト希望一覧</button>
-    <button class="tab-btn" data-tab="confirm">シフト確定・編集</button>
-    <button class="tab-btn" data-tab="calendar">週間カレンダー</button>
-    <button class="tab-btn" data-tab="sessions">講習会シフト</button>
+    <button class="tab-btn" data-tab="normal">通常授業</button>
+    <button class="tab-btn" data-tab="sessions">講習会</button>
   </div>
 
-  <!-- スタッフ管理 -->
+  <!-- ========================= スタッフ管理 ========================= -->
   <div class="tab-panel active" id="tab-staff">
     <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h3 style="margin:0;">スタッフ一覧</h3>
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <p class="hint" style="margin:0;">アルバイトスタッフの一覧です。</p>
         <button onclick="openAddStaffModal()">＋ スタッフを追加</button>
       </div>
-      <div id="staffList" style="margin-top:16px;">読み込み中...</div>
+      <div id="staffList">読み込み中...</div>
     </div>
   </div>
 
-  <!-- シフト希望一覧 -->
-  <div class="tab-panel" id="tab-overview">
-    <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-        <p class="hint" style="margin:0;">全スタッフの希望・可能日程を一覧表示します。セルにマウスを合わせると氏名が確認できます。</p>
-        <div style="min-width:220px;">
-          <label style="margin-bottom:4px;">編集するスタッフ</label>
-          <select id="overviewStaffSelect" style="margin-bottom:0;" onchange="onWeeklyOverviewStaffChange()">
-            <option value="">全員（集計表示・閲覧のみ）</option>
-          </select>
+  <!-- ========================= 通常授業 ========================= -->
+  <div class="tab-panel" id="tab-normal">
+    <div class="tabs subtabs">
+      <button class="subtab-btn active" data-subtab="overview">シフト希望一覧</button>
+      <button class="subtab-btn" data-subtab="confirm">シフト確定・編集</button>
+      <button class="subtab-btn" data-subtab="calendar">週間カレンダー</button>
+    </div>
+
+    <div class="subtab-panel active" id="subtab-overview">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+          <p class="hint" style="margin:0;">全スタッフの希望・可能日程を一覧表示します。</p>
+          <div style="min-width:220px;">
+            <label style="margin-bottom:4px;">編集するスタッフ</label>
+            <select id="overviewStaffSelect" style="margin-bottom:0;" onchange="onWeeklyOverviewStaffChange()">
+              <option value="">全員（集計表示・閲覧のみ）</option>
+            </select>
+          </div>
         </div>
+        <p class="hint" id="overviewEditHint" style="display:none;"></p>
+        <div class="legend">
+          <span><span class="swatch" style="background:#fde68a;"></span>○ 希望</span>
+          <span><span class="swatch" style="background:#bfdbfe;"></span>△ 可能</span>
+        </div>
+        <div id="overviewGrid" class="table-scroll">読み込み中...</div>
       </div>
-      <p class="hint" id="overviewEditHint" style="display:none;"></p>
-      <div class="legend">
-        <span><span class="swatch" style="background:#fde68a;"></span>○ 希望あり</span>
-        <span><span class="swatch" style="background:#bfdbfe;"></span>△ 可能あり</span>
+    </div>
+
+    <div class="subtab-panel" id="subtab-confirm">
+      <div class="card">
+        <p class="hint">「＋追加」からシフトを割り当てられます。1コマに複数人を追加できます。</p>
+        <div id="confirmGrid" class="table-scroll"></div>
       </div>
-      <div id="overviewGrid">読み込み中...</div>
+    </div>
+
+    <div class="subtab-panel" id="subtab-calendar">
+      <div class="card">
+        <p class="hint">確定済みシフトの週間カレンダー表示です（閲覧のみ）。</p>
+        <div id="calendarGrid" class="table-scroll"></div>
+      </div>
     </div>
   </div>
 
-  <!-- シフト確定・編集 -->
-  <div class="tab-panel" id="tab-confirm">
-    <div class="card">
-      <p class="hint">各コマの「＋追加」からスタッフと生徒情報を登録すると確定シフトになります。</p>
-      <div id="confirmGrid">読み込み中...</div>
-    </div>
-  </div>
-
-  <!-- 週間カレンダー -->
-  <div class="tab-panel" id="tab-calendar">
-    <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h3 style="margin:0;">確定シフト 週間カレンダー</h3>
-        <button class="secondary small" onclick="window.print()">印刷</button>
-      </div>
-      <div id="calendarGrid" style="margin-top:16px;">読み込み中...</div>
-    </div>
-  </div>
-
-  <!-- 講習会シフト -->
+  <!-- ========================= 講習会 ========================= -->
   <div class="tab-panel" id="tab-sessions">
     <div class="card">
-      <h3 style="margin:0 0 12px;">講習会を作成</h3>
-      <p class="hint">夏期講習・冬期講習など、期間を指定して日付ベースでシフトを組みたいときに使います。</p>
+      <h3 style="margin-top:0;">講習会の作成</h3>
       <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;">
-        <div style="flex:1; min-width:180px;">
+        <div style="min-width:180px;">
           <label>講習会名</label>
-          <input type="text" id="newSessionName" placeholder="例: 夏期講習2026" style="margin-bottom:0;" />
+          <input type="text" id="newSessionName" placeholder="例: 夏期講習2026" />
         </div>
-        <div style="min-width:150px;">
+        <div>
           <label>開始日</label>
-          <input type="date" id="newSessionStart" style="margin-bottom:0;" />
+          <input type="date" id="newSessionStart" style="width:auto;" />
         </div>
-        <div style="min-width:150px;">
+        <div>
           <label>終了日</label>
-          <input type="date" id="newSessionEnd" style="margin-bottom:0;" />
+          <input type="date" id="newSessionEnd" style="width:auto;" />
         </div>
-        <button onclick="submitCreateSession()">＋ 作成する</button>
+        <button onclick="submitCreateSession()">作成</button>
       </div>
-      <div id="sessionCreateError" class="error-msg" style="margin-top:8px;"></div>
+      <div class="error-msg" id="sessionCreateError"></div>
     </div>
 
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-        <div style="min-width:240px;">
-          <label>対象の講習会</label>
-          <select id="sessionSelect" style="margin-bottom:0;" onchange="onSessionChange()"></select>
-        </div>
-        <div class="tabs" style="margin:0;">
-          <button class="subtab-btn active" data-subtab="sessionOverview">希望一覧</button>
-          <button class="subtab-btn" data-subtab="sessionConfirm">シフト確定・編集</button>
-        </div>
-        <button class="secondary small" onclick="deleteCurrentSession()">この講習会を削除</button>
+        <select id="sessionSelect" style="min-width:220px; margin-bottom:0;" onchange="onSessionChange()"></select>
+        <button class="danger small" onclick="deleteCurrentSession()">この講習会を削除</button>
       </div>
+    </div>
 
-      <div class="subtab-panel active" id="subtab-sessionOverview" style="margin-top:18px;">
+    <div class="tabs subtabs">
+      <button class="subtab-btn active" data-subtab="sessionOverview">シフト希望一覧</button>
+      <button class="subtab-btn" data-subtab="sessionConfirm">シフト確定・編集</button>
+    </div>
+
+    <div class="subtab-panel active" id="subtab-sessionOverview">
+      <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-          <p class="hint" style="margin:0;">選択した講習会の期間中、各日付・コマごとの希望・可能人数を一覧表示します。セルにマウスを合わせると氏名が確認できます。</p>
+          <p class="hint" style="margin:0;">講習会期間中のスタッフの希望・可能日程を一覧表示します。</p>
           <div style="min-width:220px;">
             <label style="margin-bottom:4px;">編集するスタッフ</label>
             <select id="sessionOverviewStaffSelect" style="margin-bottom:0;" onchange="onOverviewStaffChange()">
@@ -121,40 +121,20 @@
             </select>
           </div>
         </div>
-        <p class="hint" id="sessionOverviewEditHint" style="display:none;">選択したスタッフの希望を、過去日付を含めていつでも直接編集できます。セルをクリックすると 空欄 → ○(希望) → △(可能) の順で切り替わり、自動保存されます。</p>
+        <p class="hint" id="sessionOverviewEditHint" style="display:none;"></p>
         <div class="legend">
-          <span><span class="swatch" style="background:#ffe0a3;"></span>○ 希望あり</span>
-          <span><span class="swatch" style="background:#bcd6ff;"></span>△ 可能あり</span>
+          <span><span class="swatch" style="background:#ffe0a3;"></span>○ 希望</span>
+          <span><span class="swatch" style="background:#bcd6ff;"></span>△ 可能</span>
         </div>
         <div id="sessionOverviewGrid" class="table-scroll">講習会を選択してください。</div>
       </div>
+    </div>
 
-      <div class="subtab-panel" id="subtab-sessionConfirm" style="margin-top:18px;">
-        <p class="hint">各日付・コマの「＋追加」からスタッフと生徒情報を登録すると確定シフトになります（同じコマに複数人追加できます）。カッコ内は希望・可能人数です。</p>
+    <div class="subtab-panel" id="subtab-sessionConfirm">
+      <div class="card">
+        <p class="hint">「＋追加」からシフトを割り当てられます。希望が入力されている場合はヒントが表示されます。</p>
         <div id="sessionConfirmGrid" class="table-scroll">講習会を選択してください。</div>
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- 講習会シフト追加モーダル -->
-<div class="modal-backdrop" id="sessionShiftModal">
-  <div class="modal">
-    <h3 id="sessionShiftModalTitle">シフトを追加</h3>
-    <div id="sessionShiftModalError" class="error-msg"></div>
-    <label>担当スタッフ</label>
-    <select id="sessionShiftStaffSelect"></select>
-    <label>生徒氏名</label>
-    <input type="text" id="sessionShiftStudentName" />
-    <label>学年</label>
-    <input type="text" id="sessionShiftStudentGrade" placeholder="例: 中2" />
-    <label>科目</label>
-    <input type="text" id="sessionShiftSubject" placeholder="例: 数学" />
-    <label>備考</label>
-    <input type="text" id="sessionShiftNotes" />
-    <div class="modal-actions">
-      <button class="secondary" onclick="closeSessionShiftModal()">キャンセル</button>
-      <button onclick="submitSessionShift()">保存する</button>
     </div>
   </div>
 </div>
@@ -163,42 +143,64 @@
 <div class="modal-backdrop" id="staffModal">
   <div class="modal">
     <h3>スタッフを追加</h3>
-    <div id="staffModalError" class="error-msg"></div>
     <label>氏名</label>
     <input type="text" id="newStaffName" />
     <label>メールアドレス</label>
     <input type="email" id="newStaffEmail" />
     <label>初期パスワード（6文字以上）</label>
-    <input type="text" id="newStaffPassword" />
+    <input type="password" id="newStaffPassword" />
     <label>担当科目（カンマ区切り）</label>
     <input type="text" id="newStaffSubjects" placeholder="例: 数学, 英語" />
-    <label>連絡先（電話番号など）</label>
+    <label>連絡先</label>
     <input type="text" id="newStaffContact" />
+    <div class="error-msg" id="staffModalError"></div>
     <div class="modal-actions">
       <button class="secondary" onclick="closeAddStaffModal()">キャンセル</button>
-      <button onclick="submitAddStaff()">追加する</button>
+      <button onclick="submitAddStaff()">追加</button>
     </div>
   </div>
 </div>
 
-<!-- シフト追加モーダル -->
+<!-- 通常授業シフト追加モーダル -->
 <div class="modal-backdrop" id="shiftModal">
   <div class="modal">
-    <h3 id="shiftModalTitle">シフトを追加</h3>
-    <div id="shiftModalError" class="error-msg"></div>
+    <h3 id="shiftModalTitle">シフト追加</h3>
     <label>担当スタッフ</label>
     <select id="shiftStaffSelect"></select>
-    <label>生徒氏名</label>
+    <label>生徒名</label>
     <input type="text" id="shiftStudentName" />
     <label>学年</label>
-    <input type="text" id="shiftStudentGrade" placeholder="例: 中2" />
+    <input type="text" id="shiftStudentGrade" />
     <label>科目</label>
-    <input type="text" id="shiftSubject" placeholder="例: 数学" />
+    <input type="text" id="shiftSubject" />
     <label>備考</label>
     <input type="text" id="shiftNotes" />
+    <div class="error-msg" id="shiftModalError"></div>
     <div class="modal-actions">
       <button class="secondary" onclick="closeShiftModal()">キャンセル</button>
-      <button onclick="submitShift()">保存する</button>
+      <button onclick="submitShift()">追加</button>
+    </div>
+  </div>
+</div>
+
+<!-- 講習会シフト追加モーダル -->
+<div class="modal-backdrop" id="sessionShiftModal">
+  <div class="modal">
+    <h3 id="sessionShiftModalTitle">シフト追加</h3>
+    <label>担当スタッフ</label>
+    <select id="sessionShiftStaffSelect"></select>
+    <label>生徒名</label>
+    <input type="text" id="sessionShiftStudentName" />
+    <label>学年</label>
+    <input type="text" id="sessionShiftStudentGrade" />
+    <label>科目</label>
+    <input type="text" id="sessionShiftSubject" />
+    <label>備考</label>
+    <input type="text" id="sessionShiftNotes" />
+    <div class="error-msg" id="sessionShiftModalError"></div>
+    <div class="modal-actions">
+      <button class="secondary" onclick="closeSessionShiftModal()">キャンセル</button>
+      <button onclick="submitSessionShift()">追加</button>
     </div>
   </div>
 </div>

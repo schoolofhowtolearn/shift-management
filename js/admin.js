@@ -11,25 +11,26 @@ let allShifts = []; // shifts コレクションの配列（doc.id含む）
 let weeklyEditStaffUid = ""; // "" = 全員集計表示、uid指定時はそのスタッフの希望（通常シフト）を編集可能
 let weeklySaveTimer = null;
 
-// ---- タブ切替 ----
+// ---- タブ切替（スタッフ管理／通常授業／講習会） ----
 document.querySelectorAll(".tab-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
     document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
     btn.classList.add("active");
     document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
-    if (btn.dataset.tab === "overview") renderOverviewGrid();
-    if (btn.dataset.tab === "confirm") renderConfirmGrid();
-    if (btn.dataset.tab === "calendar") renderCalendarGrid();
+    if (btn.dataset.tab === "normal") { renderOverviewGrid(); renderConfirmGrid(); renderCalendarGrid(); }
     if (btn.dataset.tab === "sessions") loadSessions();
   });
 });
 
-// ---- 講習会シフト内の希望一覧/シフト確定 切替 ----
+// ---- サブタブ切替（通常授業内の希望一覧/確定編集/週間カレンダー、講習会内の希望一覧/確定編集） ----
+// 同じ .subtab-btn クラスが複数のタブ内で使われるため、切替対象は
+// クリックされたボタンが属する tab-panel の中だけに限定する。
 document.querySelectorAll(".subtab-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
-    document.querySelectorAll(".subtab-btn").forEach((b) => b.classList.remove("active"));
-    document.querySelectorAll(".subtab-panel").forEach((p) => p.classList.remove("active"));
+    const parentPanel = btn.closest(".tab-panel");
+    parentPanel.querySelectorAll(".subtab-btn").forEach((b) => b.classList.remove("active"));
+    parentPanel.querySelectorAll(".subtab-panel").forEach((p) => p.classList.remove("active"));
     btn.classList.add("active");
     document.getElementById("subtab-" + btn.dataset.subtab).classList.add("active");
   });
