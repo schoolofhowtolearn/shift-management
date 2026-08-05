@@ -8,6 +8,8 @@ let adminUserDoc = null;
 let allStaff = []; // users(role=staff) の配列
 let allAvailability = {}; // { uid: { slots: {...}, staffName } }
 let allShifts = []; // shifts コレクションの配列（doc.id含む）
+let weeklyEditStaffUid = ""; // "" = 全員集計表示、uid指定時はそのスタッフの希望（通常シフト）を編集可能
+let weeklySaveTimer = null;
 
 // ---- タブ切替 ----
 document.querySelectorAll(".tab-btn").forEach((btn) => {
@@ -51,6 +53,19 @@ async function loadAllData() {
 
   const shiftsSnap = await db.collection("shift_shifts").get();
   allShifts = shiftsSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+
+  const overviewStaffSelect = document.getElementById("overviewStaffSelect");
+  if (overviewStaffSelect) {
+    const opts = allStaff.map((s) => `<option value="${s.uid}">${escapeHtml(s.name)}${s.active === false ? "（無効）" : ""}</option>`).join("");
+    overviewStaffSelect.innerHTML = '<option value="">全員（集計表示・閲覧のみ）</option>' + opts;
+    overviewStaffSelect.value = weeklyEditStaffUid;
+  }
+}
+
+function onWeeklyOverviewStaffChange() {
+  weeklyEditStaffUid = document.getElementById("overviewStaffSelect").value;
+  document.getElementById("overviewEditHint").style.display = weeklyEditStaffUid ? "block" : "none";
+  renderOverviewGrid();
 }
 
 function escapeHtml(str) {
@@ -164,6 +179,12 @@ function buildAvailCellContent(hopeNames, possibleNames) {
 
 function renderOverviewGrid() {
   const wrap = document.getElementById("overviewGrid");
+
+  if (weeklyEditStaffUid) {
+    renderOverviewEditableGrid(wrap);
+    return;
+  }
+
   let html = '<table class="grid"><thead><tr><th>コマ</th><th>時間</th>';
   DAYS.forEach((d) => (html += `<th>${d}</th>`));
   html += "</tr></thead><tbody>";
@@ -188,6 +209,64 @@ function renderOverviewGrid() {
   });
   html += "</tbody></table>";
   wrap.innerHTML = html;
+}
+
+// 管理者が特定スタッフの通常シフト希望を直接編集するためのグリッド。いつでもどの曜日・コマも編集できる。
+function renderOverviewEditableGrid(wrap) {
+  const staff = allStaff.find((s) => s.uid === weeklyEditStaffUid);
+  const slots = (allAvailability[weeklyEditStaffUid] || {}).slots || {};
+
+  let html = '<table class="grid"><thead><tr><th>コマ</th><th>時間</th>';
+  DAYS.forEach((d) => (html += `<th>${d}</th>`));
+  html += "</tr></thead><tbody>";
+
+  PERIODS.forEach((p) => {
+    html += `<tr><td class="period-cell">${p.id}</td><td class="period-cell">${p.start}-${p.end}</td>`;
+    DAYS.forEach((d) => {
+      const key = slotKey(d, p.id);
+      const mark = slots[key] || "";
+      const cls = mark === "○" ? "mark-hope" : mark === "△" ? "mark-possible" : "";
+      html += `<td class="mark-cell ${cls}" onclick="toggleAdminWeeklyMark('${key}')">${mark}</td>`;
+    });
+    html += "</tr>";
+  });
+  html += "</tbody></table>";
+  wrap.innerHTML = html;
+
+  document.getElementById("overviewEditHint").textContent =
+    `「${staff ? staff.name : ""}」さんの希望を編集しています。セルをクリックすると 空欄 → ○(希望) → △(可能) の順で切り替わり、自動保存されます。`;
+}
+
+function toggleAdminWeeklyMark(key) {
+  if (!weeklyEditStaffUid) return;
+  if (!allAvailability[weeklyEditStaffUid]) {
+    const staff = allStaff.find((s) => s.uid === weeklyEditStaffUid);
+    allAvailability[weeklyEditStaffUid] = {
+      staffId: weeklyEditStaffUid,
+      staffName: staff ? staff.name : "",
+      slots: {}
+    };
+  }
+  const rec = allAvailability[weeklyEditStaffUid];
+  rec.slots = rec.slots || {};
+  rec.slots[key] = nextMark(rec.slots[key]);
+  renderOverviewGrid();
+  clearTimeout(weeklySaveTimer);
+  weeklySaveTimer = setTimeout(saveAdminWeeklyAvailability, 400);
+}
+
+async function saveAdminWeeklyAvailability() {
+  if (!weeklyEditStaffUid) return;
+  const rec = allAvailability[weeklyEditStaffUid];
+  await db.collection("shift_availability").doc(weeklyEditStaffUid).set(
+    {
+      staffId: weeklyEditStaffUid,
+      staffName: rec.staffName,
+      slots: rec.slots,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    },
+    { merge: true }
+  );
 }
 
 // ==========================================================

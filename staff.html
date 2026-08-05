@@ -17,27 +17,48 @@
 
 <div class="container">
   <div class="tabs">
-    <button class="tab-btn active" data-tab="availability">通常シフト希望入力</button>
-    <button class="tab-btn" data-tab="sessionAvailability">講習会シフト希望入力</button>
+    <button class="tab-btn active" data-tab="availability">シフト希望</button>
     <button class="tab-btn" data-tab="confirmed">確定シフト</button>
   </div>
 
   <div class="tab-panel active" id="tab-availability">
-    <div class="card">
-      <p class="hint">セルをクリックすると 空欄 → ○(希望) → △(可能) の順で切り替わります。変更は自動的に保存されます。</p>
-      <div class="legend">
-        <span><span class="swatch" style="background:#fde68a;"></span>○ 希望</span>
-        <span><span class="swatch" style="background:#bfdbfe;"></span>△ 可能</span>
+    <div class="tabs subtabs">
+      <button class="subtab-btn active" data-subtab="normal">通常</button>
+      <button class="subtab-btn" data-subtab="session">講習会</button>
+    </div>
+
+    <div class="subtab-panel active" id="subtab-normal">
+      <div class="card">
+        <p class="hint">セルをクリックすると 空欄 → ○(希望) → △(可能) の順で切り替わります。変更は自動的に保存されます。</p>
+        <div class="legend">
+          <span><span class="swatch" style="background:#fde68a;"></span>○ 希望</span>
+          <span><span class="swatch" style="background:#bfdbfe;"></span>△ 可能</span>
+        </div>
+        <div id="availabilityGrid" class="table-scroll"></div>
+        <div id="saveStatus" class="hint" style="margin-top:8px;"></div>
       </div>
-      <div id="availabilityGrid"></div>
-      <div id="saveStatus" class="hint" style="margin-top:8px;"></div>
+    </div>
+
+    <div class="subtab-panel" id="subtab-session">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+          <p class="hint" style="margin:0;">講習会（夏期講習・冬期講習など）期間中のシフト希望を、日付ごとに入力できます。セルをクリックすると 空欄 → ○(希望) → △(可能) の順で切り替わります。過去の日付はグレー表示になり入力できません。</p>
+          <select id="sessionAvailabilitySelect" style="min-width:220px; margin-bottom:0;" onchange="onAvailabilitySessionChange()"></select>
+        </div>
+        <div class="legend" style="margin-top:12px;">
+          <span><span class="swatch" style="background:#ffe0a3;"></span>○ 希望</span>
+          <span><span class="swatch" style="background:#bcd6ff;"></span>△ 可能</span>
+        </div>
+        <div id="sessionAvailabilityGrid" class="table-scroll"></div>
+        <div id="sessionSaveStatus" class="hint" style="margin-top:8px;"></div>
+      </div>
     </div>
   </div>
 
   <div class="tab-panel" id="tab-confirmed">
     <div class="card">
       <p class="hint">管理者が確定した、あなたの担当シフトです。</p>
-      <div id="confirmedGrid"></div>
+      <div id="confirmedGrid" class="table-scroll"></div>
     </div>
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
@@ -45,21 +66,6 @@
         <select id="confirmedSessionSelect" style="min-width:220px; margin-bottom:0;" onchange="loadConfirmedSessionShifts()"></select>
       </div>
       <div id="confirmedSessionGrid" class="table-scroll" style="margin-top:16px;">講習会を選択してください。</div>
-    </div>
-  </div>
-
-  <div class="tab-panel" id="tab-sessionAvailability">
-    <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-        <p class="hint" style="margin:0;">講習会（夏期講習・冬期講習など）期間中のシフト希望を、日付ごとに入力できます。セルをクリックすると 空欄 → ○(希望) → △(可能) の順で切り替わります。過去の日付はグレー表示になり入力できません。</p>
-        <select id="sessionAvailabilitySelect" style="min-width:220px; margin-bottom:0;" onchange="onAvailabilitySessionChange()"></select>
-      </div>
-      <div class="legend" style="margin-top:12px;">
-        <span><span class="swatch" style="background:#ffe0a3;"></span>○ 希望</span>
-        <span><span class="swatch" style="background:#bcd6ff;"></span>△ 可能</span>
-      </div>
-      <div id="sessionAvailabilityGrid" class="table-scroll"></div>
-      <div id="sessionSaveStatus" class="hint" style="margin-top:8px;"></div>
     </div>
   </div>
 </div>

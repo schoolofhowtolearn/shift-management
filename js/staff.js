@@ -14,7 +14,18 @@ document.querySelectorAll(".tab-btn").forEach((btn) => {
     btn.classList.add("active");
     document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
     if (btn.dataset.tab === "confirmed") { loadConfirmedShifts(); loadAllSessionsForStaff(); }
-    if (btn.dataset.tab === "sessionAvailability") loadAllSessionsForStaff();
+  });
+});
+
+// サブタブ切替（シフト希望内の「通常」「講習会」）
+document.querySelectorAll(".subtab-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const parentPanel = btn.closest(".tab-panel");
+    parentPanel.querySelectorAll(".subtab-btn").forEach((b) => b.classList.remove("active"));
+    parentPanel.querySelectorAll(".subtab-panel").forEach((p) => p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("subtab-" + btn.dataset.subtab).classList.add("active");
+    if (btn.dataset.subtab === "session") loadAllSessionsForStaff();
   });
 });
 

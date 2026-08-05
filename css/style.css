@@ -144,7 +144,34 @@ label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 4px
 .tab-panel, .subtab-panel { display: none; }
 .tab-panel.active, .subtab-panel.active { display: block; }
 
-.table-scroll { overflow-x: auto; }
+.tabs.subtabs {
+  background: #eceef1;
+  margin: 0 0 18px;
+}
+
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* コマ・時間の列は横スクロール時も常に見えるように固定 */
+table.grid tr > *:nth-child(1) {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: #fafafb;
+  width: 40px;
+  min-width: 40px;
+  max-width: 40px;
+}
+table.grid tr > *:nth-child(2) {
+  position: sticky;
+  left: 40px;
+  z-index: 3;
+  background: #fafafb;
+  width: 100px;
+  min-width: 100px;
+  max-width: 100px;
+  white-space: nowrap;
+  border-right: 2px solid var(--border);
+}
 
 table.grid {
   border-collapse: separate;
