@@ -4,10 +4,12 @@
 // からコピーできます。
 // ==========================================================
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyABmK5aGVAdcyL6Ei9nogUp-NOF-BxSOLI",
+  authDomain: "posting-tracker-99ebb.firebaseapp.com",
+  databaseURL: "https://posting-tracker-99ebb-default-rtdb.firebaseio.com",
+  projectId: "posting-tracker-99ebb",
+  storageBucket: "posting-tracker-99ebb.firebasestorage.app",
+  messagingSenderId: "905270977413",
+  appId: "1:905270977413:web:a1f013d1d4073af8711aec",
+  measurementId: "G-CQPYBSZHCS"
 };
