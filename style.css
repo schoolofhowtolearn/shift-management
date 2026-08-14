@@ -12,6 +12,7 @@
   --danger-bg: #fdecea;
   --hope: #ffe0a3;    /* ○ 希望 */
   --possible: #bcd6ff; /* △ 可能 */
+  --no: #fecaca;       /* × 不可 */
   --blocked: #f3f4f6;
   --shadow: 0 1px 2px rgba(20, 20, 30, 0.04), 0 4px 14px rgba(20, 20, 30, 0.06);
 }
@@ -144,7 +145,34 @@ label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 4px
 .tab-panel, .subtab-panel { display: none; }
 .tab-panel.active, .subtab-panel.active { display: block; }
 
-.table-scroll { overflow-x: auto; }
+.tabs.subtabs {
+  background: #eceef1;
+  margin: 0 0 18px;
+}
+
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* コマ・時間の列は横スクロール時も常に見えるように固定 */
+table.grid tr > *:nth-child(1) {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: #fafafb;
+  width: 40px;
+  min-width: 40px;
+  max-width: 40px;
+}
+table.grid tr > *:nth-child(2) {
+  position: sticky;
+  left: 40px;
+  z-index: 3;
+  background: #fafafb;
+  width: 100px;
+  min-width: 100px;
+  max-width: 100px;
+  white-space: nowrap;
+  border-right: 2px solid var(--border);
+}
 
 table.grid {
   border-collapse: separate;
@@ -174,12 +202,36 @@ table.grid tr:first-child th:last-child { border-top-right-radius: 12px; }
 .mark-cell:hover { background: var(--accent-bg); }
 .mark-cell.mark-hope { background: var(--hope); }
 .mark-cell.mark-possible { background: var(--possible); }
+.mark-cell.mark-no { background: var(--no); color: #991b1b; }
 .mark-cell.mark-disabled {
   cursor: not-allowed;
   color: var(--muted);
   opacity: 0.55;
 }
 .mark-cell.mark-disabled:hover { background: inherit; }
+.mark-cell.mark-disabled-empty {
+  background: var(--blocked);
+}
+.mark-cell.mark-disabled-empty:hover { background: var(--blocked); }
+
+.mark-cell.avail-list-cell {
+  height: auto;
+  min-height: 36px;
+  min-width: 90px;
+  text-align: left;
+  vertical-align: top;
+  padding: 4px 6px;
+  cursor: default;
+}
+.mark-cell.avail-list-cell:hover { background: inherit; }
+.avail-name {
+  font-size: 11px;
+  white-space: nowrap;
+  line-height: 1.5;
+}
+.avail-name.avail-hope { color: #92400e; }
+.avail-name.avail-possible { color: #1e3a8a; }
+.avail-name.avail-no { color: #991b1b; }
 
 .shift-cell {
   min-width: 130px;

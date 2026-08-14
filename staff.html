@@ -29,10 +29,11 @@
 
     <div class="subtab-panel active" id="subtab-normal">
       <div class="card">
-        <p class="hint">セルをクリックすると 空欄 → ○(希望) → △(可能) の順で切り替わります。変更は自動的に保存されます。</p>
+        <p class="hint">セルをクリックすると 空欄 → ○(希望) → △(可能) → ×(不可) の順で切り替わります。変更は自動的に保存されます。</p>
         <div class="legend">
           <span><span class="swatch" style="background:#fde68a;"></span>○ 希望</span>
           <span><span class="swatch" style="background:#bfdbfe;"></span>△ 可能</span>
+          <span><span class="swatch" style="background:#fecaca;"></span>× 不可</span>
         </div>
         <div id="availabilityGrid" class="table-scroll"></div>
         <div id="saveStatus" class="hint" style="margin-top:8px;"></div>
@@ -42,12 +43,13 @@
     <div class="subtab-panel" id="subtab-session">
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-          <p class="hint" style="margin:0;">講習会（夏期講習・冬期講習など）期間中のシフト希望を、日付ごとに入力できます。セルをクリックすると 空欄 → ○(希望) → △(可能) の順で切り替わります。過去の日付はグレー表示になり入力できません。</p>
+          <p class="hint" style="margin:0;">講習会（夏期講習・冬期講習など）期間中のシフト希望を、日付ごとに入力できます。セルをクリックすると 空欄 → ○(希望) → △(可能) → ×(不可) の順で切り替わります。過去の日付はグレー表示になり入力できません。</p>
           <select id="sessionAvailabilitySelect" style="min-width:220px; margin-bottom:0;" onchange="onAvailabilitySessionChange()"></select>
         </div>
         <div class="legend" style="margin-top:12px;">
           <span><span class="swatch" style="background:#ffe0a3;"></span>○ 希望</span>
           <span><span class="swatch" style="background:#bcd6ff;"></span>△ 可能</span>
+          <span><span class="swatch" style="background:#fecaca;"></span>× 不可</span>
         </div>
         <div id="sessionAvailabilityGrid" class="table-scroll"></div>
         <div id="sessionSaveStatus" class="hint" style="margin-top:8px;"></div>
