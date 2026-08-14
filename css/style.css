@@ -12,6 +12,7 @@
   --danger-bg: #fdecea;
   --hope: #ffe0a3;    /* ○ 希望 */
   --possible: #bcd6ff; /* △ 可能 */
+  --no: #fecaca;       /* × 不可 */
   --blocked: #f3f4f6;
   --shadow: 0 1px 2px rgba(20, 20, 30, 0.04), 0 4px 14px rgba(20, 20, 30, 0.06);
 }
@@ -201,6 +202,7 @@ table.grid tr:first-child th:last-child { border-top-right-radius: 12px; }
 .mark-cell:hover { background: var(--accent-bg); }
 .mark-cell.mark-hope { background: var(--hope); }
 .mark-cell.mark-possible { background: var(--possible); }
+.mark-cell.mark-no { background: var(--no); color: #991b1b; }
 .mark-cell.mark-disabled {
   cursor: not-allowed;
   color: var(--muted);
@@ -229,6 +231,7 @@ table.grid tr:first-child th:last-child { border-top-right-radius: 12px; }
 }
 .avail-name.avail-hope { color: #92400e; }
 .avail-name.avail-possible { color: #1e3a8a; }
+.avail-name.avail-no { color: #991b1b; }
 
 .shift-cell {
   min-width: 130px;
