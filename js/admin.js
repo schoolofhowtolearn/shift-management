@@ -169,12 +169,14 @@ async function submitAddStaff() {
 // シフト希望一覧（読み取り専用グリッド）
 // ==========================================================
 
-// ○/△を付けたスタッフの氏名一覧をセルの中身として組み立てる（希望一覧グリッド共通）
-function buildAvailCellContent(hopeNames, possibleNames) {
-  if (!hopeNames.length && !possibleNames.length) return "";
+// ○/△/×を付けたスタッフの氏名一覧をセルの中身として組み立てる（希望一覧グリッド共通）
+function buildAvailCellContent(hopeNames, possibleNames, noNames) {
+  noNames = noNames || [];
+  if (!hopeNames.length && !possibleNames.length && !noNames.length) return "";
   let html = "";
   hopeNames.forEach((n) => (html += `<div class="avail-name avail-hope">○ ${escapeHtml(n)}</div>`));
   possibleNames.forEach((n) => (html += `<div class="avail-name avail-possible">△ ${escapeHtml(n)}</div>`));
+  noNames.forEach((n) => (html += `<div class="avail-name avail-no">× ${escapeHtml(n)}</div>`));
   return html;
 }
 
@@ -196,15 +198,17 @@ function renderOverviewGrid() {
       const key = slotKey(d, p.id);
       const hopeNames = [];
       const possibleNames = [];
+      const noNames = [];
       Object.values(allAvailability).forEach((a) => {
         const mark = (a.slots || {})[key];
         if (mark === "○") hopeNames.push(a.staffName);
         else if (mark === "△") possibleNames.push(a.staffName);
+        else if (mark === "×") noNames.push(a.staffName);
       });
       let cellClass = "";
       if (hopeNames.length) cellClass = "mark-hope";
       else if (possibleNames.length) cellClass = "mark-possible";
-      html += `<td class="mark-cell avail-list-cell ${cellClass}">${buildAvailCellContent(hopeNames, possibleNames)}</td>`;
+      html += `<td class="mark-cell avail-list-cell ${cellClass}">${buildAvailCellContent(hopeNames, possibleNames, noNames)}</td>`;
     });
     html += "</tr>";
   });
@@ -226,7 +230,7 @@ function renderOverviewEditableGrid(wrap) {
     DAYS.forEach((d) => {
       const key = slotKey(d, p.id);
       const mark = slots[key] || "";
-      const cls = mark === "○" ? "mark-hope" : mark === "△" ? "mark-possible" : "";
+      const cls = markClass(mark);
       html += `<td class="mark-cell ${cls}" onclick="toggleAdminWeeklyMark('${key}')">${mark}</td>`;
     });
     html += "</tr>";
@@ -235,7 +239,7 @@ function renderOverviewEditableGrid(wrap) {
   wrap.innerHTML = html;
 
   document.getElementById("overviewEditHint").textContent =
-    `「${staff ? staff.name : ""}」さんの希望を編集しています。セルをクリックすると 空欄 → ○(希望) → △(可能) の順で切り替わり、自動保存されます。`;
+    `「${staff ? staff.name : ""}」さんの希望を編集しています。セルをクリックすると 空欄 → ○(希望) → △(可能) → ×(不可) の順で切り替わり、自動保存されます。`;
 }
 
 function toggleAdminWeeklyMark(key) {
@@ -323,13 +327,15 @@ function openShiftModal(day, period) {
   document.getElementById("shiftSubject").value = "";
   document.getElementById("shiftNotes").value = "";
 
-  // このコマに ○/△ を付けているスタッフを優先的に上部へ表示
+  // このコマに ○/△ を付けているスタッフを優先的に上部へ、×(不可)のスタッフは末尾に分けて表示
   const available = [];
+  const unavailable = [];
   const others = [];
   allStaff.forEach((s) => {
     if (s.active === false) return;
     const mark = (allAvailability[s.uid] || {}).slots && allAvailability[s.uid].slots[key];
     if (mark === "○" || mark === "△") available.push({ ...s, mark });
+    else if (mark === "×") unavailable.push(s);
     else others.push(s);
   });
 
@@ -344,7 +350,12 @@ function openShiftModal(day, period) {
     others.forEach((s) => (optionsHtml += `<option value="${s.uid}">${escapeHtml(s.name)}</option>`));
     optionsHtml += `</optgroup>`;
   }
-  if (!available.length && !others.length) {
+  if (unavailable.length) {
+    optionsHtml += `<optgroup label="この時間は不可（×）">`;
+    unavailable.forEach((s) => (optionsHtml += `<option value="${s.uid}">${escapeHtml(s.name)}（×）</option>`));
+    optionsHtml += `</optgroup>`;
+  }
+  if (!available.length && !others.length && !unavailable.length) {
     optionsHtml = `<option value="">（有効なスタッフがいません）</option>`;
   }
   document.getElementById("shiftStaffSelect").innerHTML = optionsHtml;
@@ -554,15 +565,17 @@ function renderSessionOverviewGrid() {
       const key = sessionSlotKey(dt, p.id);
       const hopeNames = [];
       const possibleNames = [];
+      const noNames = [];
       Object.values(sessionAvailability).forEach((a) => {
         const mark = (a.slots || {})[key];
         if (mark === "○") hopeNames.push(a.staffName);
         else if (mark === "△") possibleNames.push(a.staffName);
+        else if (mark === "×") noNames.push(a.staffName);
       });
       let cellClass = "";
       if (hopeNames.length) cellClass = "mark-hope";
       else if (possibleNames.length) cellClass = "mark-possible";
-      html += `<td class="mark-cell avail-list-cell ${cellClass}">${buildAvailCellContent(hopeNames, possibleNames)}</td>`;
+      html += `<td class="mark-cell avail-list-cell ${cellClass}">${buildAvailCellContent(hopeNames, possibleNames, noNames)}</td>`;
     });
     html += "</tr>";
   });
@@ -585,7 +598,7 @@ function renderSessionOverviewEditableGrid(wrap) {
     currentSessionDates.forEach((dt) => {
       const key = sessionSlotKey(dt, p.id);
       const mark = slots[key] || "";
-      const cls = mark === "○" ? "mark-hope" : mark === "△" ? "mark-possible" : "";
+      const cls = markClass(mark);
       html += `<td class="mark-cell ${cls}" onclick="toggleAdminSessionMark('${key}')">${mark}</td>`;
     });
     html += "</tr>";
@@ -594,7 +607,7 @@ function renderSessionOverviewEditableGrid(wrap) {
   wrap.innerHTML = html;
 
   document.getElementById("sessionOverviewEditHint").textContent =
-    `「${staff ? staff.name : ""}」さんの希望を編集しています。過去日付を含めていつでも編集できます。セルをクリックすると 空欄 → ○(希望) → △(可能) の順で切り替わり、自動保存されます。`;
+    `「${staff ? staff.name : ""}」さんの希望を編集しています。過去日付を含めていつでも編集できます。セルをクリックすると 空欄 → ○(希望) → △(可能) → ×(不可) の順で切り替わり、自動保存されます。`;
 }
 
 function toggleAdminSessionMark(key) {
@@ -650,14 +663,17 @@ function renderSessionConfirmGrid() {
 
       const hopeNames = [];
       const possibleNames = [];
+      const noNames = [];
       Object.values(sessionAvailability).forEach((a) => {
         const mark = (a.slots || {})[key];
         if (mark === "○") hopeNames.push(a.staffName);
         else if (mark === "△") possibleNames.push(a.staffName);
+        else if (mark === "×") noNames.push(a.staffName);
       });
       const availParts = [];
       if (hopeNames.length) availParts.push("○ " + hopeNames.join("・"));
       if (possibleNames.length) availParts.push("△ " + possibleNames.join("・"));
+      if (noNames.length) availParts.push("× " + noNames.join("・"));
       const availLabel = availParts.join(" / ");
 
       html += `<td class="shift-cell">`;
@@ -691,14 +707,16 @@ function openSessionShiftModal(dateStr, period) {
   document.getElementById("sessionShiftSubject").value = "";
   document.getElementById("sessionShiftNotes").value = "";
 
-  // このコマに ○/△ を付けているスタッフを優先的に上部へ表示
+  // この日時に ○/△ を付けているスタッフを優先的に上部へ、×(不可)のスタッフは末尾に分けて表示
   const available = [];
+  const unavailable = [];
   const others = [];
   allStaff.forEach((s) => {
     if (s.active === false) return;
     const a = sessionAvailability[s.uid];
     const mark = a && a.slots && a.slots[key];
     if (mark === "○" || mark === "△") available.push({ ...s, mark });
+    else if (mark === "×") unavailable.push(s);
     else others.push(s);
   });
 
@@ -713,7 +731,12 @@ function openSessionShiftModal(dateStr, period) {
     others.forEach((s) => (optionsHtml += `<option value="${s.uid}">${escapeHtml(s.name)}</option>`));
     optionsHtml += `</optgroup>`;
   }
-  if (!available.length && !others.length) {
+  if (unavailable.length) {
+    optionsHtml += `<optgroup label="この日時は不可（×）">`;
+    unavailable.forEach((s) => (optionsHtml += `<option value="${s.uid}">${escapeHtml(s.name)}（×）</option>`));
+    optionsHtml += `</optgroup>`;
+  }
+  if (!available.length && !others.length && !unavailable.length) {
     optionsHtml = `<option value="">（有効なスタッフがいません）</option>`;
   }
   document.getElementById("sessionShiftStaffSelect").innerHTML = optionsHtml;

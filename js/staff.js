@@ -52,7 +52,7 @@ function renderAvailabilityGrid() {
     DAYS.forEach((d) => {
       const key = slotKey(d, p.id);
       const mark = currentSlots[key] || "";
-      const cls = mark === "○" ? "mark-hope" : mark === "△" ? "mark-possible" : "";
+      const cls = markClass(mark);
       html += `<td class="mark-cell ${cls}" data-key="${key}" onclick="toggleMark('${key}')">${mark}</td>`;
     });
     html += "</tr>";
@@ -197,7 +197,7 @@ function renderSessionAvailabilityGrid() {
     currentAvailDates.forEach((dt) => {
       const key = sessionSlotKey(dt, p.id);
       const mark = currentSessionSlots[key] || "";
-      const cls = mark === "○" ? "mark-hope" : mark === "△" ? "mark-possible" : "";
+      const cls = markClass(mark);
       if (isPastDate(dt)) {
         html += `<td class="mark-cell mark-disabled ${cls || "mark-disabled-empty"}" title="過去の日付は入力できません">${mark}</td>`;
       } else {

@@ -110,10 +110,18 @@ function logout() {
   auth.signOut().then(() => (window.location.href = "index.html"));
 }
 
-// マークの表示順 (クリックで循環): 空 -> ○(希望) -> △(可能) -> 空
-const MARK_CYCLE = ["", "○", "△"];
+// マークの表示順 (クリックで循環): 空 -> ○(希望) -> △(可能) -> ×(不可) -> 空
+const MARK_CYCLE = ["", "○", "△", "×"];
 
 function nextMark(current) {
   const idx = MARK_CYCLE.indexOf(current || "");
   return MARK_CYCLE[(idx + 1) % MARK_CYCLE.length];
+}
+
+// マーク記号に対応する表示用CSSクラス名を返す
+function markClass(mark) {
+  if (mark === "○") return "mark-hope";
+  if (mark === "△") return "mark-possible";
+  if (mark === "×") return "mark-no";
+  return "";
 }
